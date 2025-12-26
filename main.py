@@ -41,23 +41,25 @@ class SubmitPayload(BaseModel):
 def health():
     return {"ok": True, "ts": datetime.utcnow().isoformat()}
 
+import traceback
+from fastapi import HTTPException
+
 @app.post("/submit")
 def submit(p: SubmitPayload):
     try:
         with psycopg.connect(DATABASE_URL) as con:
             with con.cursor() as cur:
                 cur.execute(
-                    """
-                    insert into attempts(name, score, answers_json)
-                    values (%s, %s, %s)
-                    """,
-                    (p.name.strip(), p.score, json.dumps(p.answers, ensure_ascii=False))
+                    "insert into attempts(name, score, answers_json) values (%s, %s, %s)",
+                    (p.name, p.score, json.dumps(p.answers, ensure_ascii=False))
                 )
             con.commit()
         return {"ok": True}
     except Exception as e:
-        # Чтобы в /docs и в браузере было понятно что случилось
-        raise HTTPException(status_code=500, detail=f"DB insert failed: {type(e).__name__}")
+        print("SUBMIT ERROR:", repr(e))   # <-- появится в Render Logs
+        traceback.print_exc()            # <-- полный traceback в Render Logs
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/results")
 def results():
@@ -84,3 +86,4 @@ def results():
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"DB read failed: {type(e).__name__}")
+
