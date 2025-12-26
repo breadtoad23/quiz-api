@@ -1,4 +1,6 @@
 import os, json
+import traceback
+from fastapi import HTTPException
 from datetime import datetime
 from typing import Any, Dict
 
@@ -41,8 +43,7 @@ class SubmitPayload(BaseModel):
 def health():
     return {"ok": True, "ts": datetime.utcnow().isoformat()}
 
-import traceback
-from fastapi import HTTPException
+
 
 @app.post("/submit")
 def submit(p: SubmitPayload):
@@ -86,4 +87,5 @@ def results():
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"DB read failed: {type(e).__name__}")
+
 
