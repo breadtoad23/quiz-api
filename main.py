@@ -42,7 +42,7 @@ def get_exam():
     exam_id = secrets.token_hex(8)
 
     try:
-        with psycopg.connect(DATABASE_URL) as con:
+        with psycopg.connect(DATABASE_URL, prepare_threshold=0) as con:
             with con.cursor() as cur:
                 # Берём N случайных вопросов
                 cur.execute(
@@ -86,7 +86,7 @@ def submit(payload: SubmitPayload):
             raise HTTPException(status_code=400, detail="No answers provided")
 
         score = 0
-        with psycopg.connect(DATABASE_URL) as con:
+       with psycopg.connect(DATABASE_URL, prepare_threshold=0) as con::
             with con.cursor() as cur:
                 # Считаем score
                 for qid_str, opt_id in answers.items():
@@ -133,7 +133,7 @@ def results():
     Для тебя (админ). Потом можно убрать или спрятать.
     """
     try:
-        with psycopg.connect(DATABASE_URL) as con:
+        with psycopg.connect(DATABASE_URL, prepare_threshold=0) as con::
             with con.cursor() as cur:
                 cur.execute("""
                     select id, name, submitted_at, score, answers_json
@@ -149,3 +149,4 @@ def results():
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"/results failed: {e}")
+
