@@ -32,12 +32,11 @@ EXAM_SIZE = 10  # сколько вопросов отдаём в тесте
 
 
 def db_connect():
-    """
-    Важно для Supabase pooler / transaction pooler:
-    отключаем prepared statements.
-    """
-    return psycopg.connect(DATABASE_URL, prepare_threshold=0)
-
+    return psycopg.connect(
+        DATABASE_URL,
+        prepare_threshold=0,
+        autocommit=True
+    )
 
 @app.get("/")
 def root():
@@ -191,3 +190,4 @@ def results():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"/results failed: {e}")
+
